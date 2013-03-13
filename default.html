@@ -1,0 +1,87 @@
+<html>
+<head>
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+	<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+</head>
+<body>
+<table border="1" style="width: 100%;">
+<tr><td>Farm</td><td><div id="farm"></div></td><td><div id="farmSlider"></div></td></tr>
+<tr><td>Work</td><td><div id="work"></div></td><td></td></tr>
+<tr><td>House</td><td><div id="house"></div></td><td><div id="houseSlider"></div></td></tr>
+<tr><td>People</td><td><div id="people"></div></td><td></td></tr>
+<tr><td>Money</td><td><div id="money"></div></td><td></td></tr>
+</table>
+</body>
+<script type="text/javascript">
+$(document).ready(function() {
+    $( "#houseSlider" ).slider({
+		range: "min",
+		value: 0,
+		min: 0,
+		max: 5,
+		slide: function( event, ui ) {
+			$( "#house" ).text( ui.value );
+		}
+	});
+
+    $( "#farmSlider" ).slider({
+		range: "min",
+		value: 0,
+		min: 0,
+		max: 5,
+		slide: function( event, ui ) {
+			$( "#farm" ).text( ui.value );
+		}
+	});
+
+	
+	var farm = 	{
+		numOf : 0,
+		update : function (val) {
+		
+		}
+	};
+	
+	var work = 	{
+		numOf: 0,
+		update: function(val) {
+			this.numOf = val * 10;
+		}
+	
+	};
+	
+	
+	var house = 
+	{
+		numOf : 0,
+		update : function() {
+			people.numOf = this.numOf * 10;
+		}
+		//1 house = 10 people
+	};
+	
+	var people =
+	{
+		numOf : 0
+	};
+	
+	var p = new people();
+	
+});
+
+setInterval(function() {
+	house.numOf = $("#house").text();
+	house.update();
+	farm.numOf = $("#farm").text();
+	
+	
+	$("#work").text(work.numOf);
+	$("#people").text(people.numOf);
+	console.log("house:"+ house.numOf + "\npeople:" + people.numOf);
+}, 1000);   
+	  
+	  
+</script>
+</html>
