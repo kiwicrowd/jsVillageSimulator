@@ -6,12 +6,15 @@
 	<script type='text/javascript' src='https://www.google.com/jsapi'></script>
 </head>
 <body>
+need houses = people<br/>
+need farms = work for people, which earns money<br/>
+houses and farms costs money.<br/>
 <table border="1" style="width: 100%;">
-<tr><td>Farm</td><td><div id="farm"></div></td><td><div id="farmSlider"></div></td></tr>
-<tr><td>Work</td><td><div id="work"></div></td><td></td></tr>
-<tr><td>House</td><td><div id="house"></div></td><td><div id="houseSlider"></div></td></tr>
-<tr><td>People</td><td><div id="people"></div></td><td></td></tr>
-<tr><td>Money</td><td><div id="money"></div></td><td></td></tr>
+	<tr><td>Farm</td><td><div id="farm"></div></td><td><div id="farmSlider"></div></td></tr>
+	<tr><td>Work</td><td><div id="work"></div></td><td></td></tr>
+	<tr><td>House</td><td><div id="house"></div></td><td><div id="houseSlider"></div></td></tr>
+	<tr><td>People</td><td><div id="people"></div></td><td></td></tr>
+	<tr><td>Money</td><td><div id="money"></div></td><td></td></tr>
 </table>
 </body>
 <script type="text/javascript">
@@ -36,52 +39,96 @@ $(document).ready(function() {
 		}
 	});
 
-	
-	var farm = 	{
-		numOf : 0,
-		update : function (val) {
-		
-		}
-	};
-	
-	var work = 	{
-		numOf: 0,
-		update: function(val) {
-			this.numOf = val * 10;
-		}
-	
-	};
-	
-	
-	var house = 
-	{
-		numOf : 0,
-		update : function() {
-			people.numOf = this.numOf * 10;
-		}
-		//1 house = 10 people
-	};
-	
-	var people =
-	{
-		numOf : 0
-	};
-	
-	var p = new people();
-	
 });
 
+var money = {
+	numOf : 0,
+	update : function (val) {
+		this.numOf += val;
+	}
+};
+
+
+var f = [];
+var globalCatArray = 0;
+
+var farm = 	function() {
+	this.numOf = 0;
+	this.farmLevel = 10;
+	this.update = function (val) {
+		//numFarms
+		if(val > numFarms)
+		{
+			for(var x=numFarms;x<val;x++)
+			{
+				var tempfarm = new farm();
+				f.push(tempfarm);
+				tempfarm = null;
+			}
+			numFarms = val;
+		}
+		else if(numFarms > val)
+		{
+			for(var x=val;x<numFarms;x++)
+			{
+				f.pop();
+			}
+			
+			numFarms = val;
+		}
+		
+		this.numOf = (val*1);
+		work.update(val*this.farmLevel);
+	};
+	globalCatArray++;
+};
+
+var work = 	{
+	numOf: 0,
+	payLevel : 2,
+	update: function(val) {
+		money.update(val * this.payLevel);
+		this.numOf = val;
+	}
+};
+
+var people = {
+	numOf : 0,
+	update : function(val) {
+		this.numOf = val;
+		//work.update(val);
+	}
+};
+
+
+var house = {
+	numOf : 0,
+	update : function(val) {
+		this.numOf = val
+		people.update(val * 10);
+			
+	}
+	//1 house = 10 people
+};
+
+var f1 = new farm();
+var farm2 = new farm();
+
+var numFarms = 0;
+
 setInterval(function() {
-	house.numOf = $("#house").text();
-	house.update();
-	farm.numOf = $("#farm").text();
+	house.update($("#house").text());
+	f1.update($("#farm").text());
 	
-	
+	$("#money").text(money.numOf);
 	$("#work").text(work.numOf);
 	$("#people").text(people.numOf);
-	console.log("house:"+ house.numOf + "\npeople:" + people.numOf);
-}, 1000);   
-	  
+	$("#house").text(house.numOf);
+
+	console.log("house:"+ house.numOf + "\npeople:" + people.numOf +
+	"\nwork:" + work.numOf + "\nf1:" + f1.numOf + "\nmoney:" + money.numOf +
+	"\nfarm2:" + farm2.numOf + "\nf:" + f.length + "\nnumFarms:" + numFarms);
+}, 5000);   
 	  
 </script>
 </html>
