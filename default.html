@@ -4,8 +4,15 @@
 	<script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
 	<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+
+	<style>
+		.farms {background-color:red; padding: 5px; margin: 10px; width: 110px;}
+		
+	</style>
+	
 </head>
 <body>
+<div id="timer"></div>
 need houses = people<br/>
 need farms = work for people, which earns money<br/>
 houses and farms costs money.<br/>
@@ -16,6 +23,11 @@ houses and farms costs money.<br/>
 	<tr><td>People</td><td><div id="people"></div></td><td></td></tr>
 	<tr><td>Money</td><td><div id="money"></div></td><td></td></tr>
 </table>
+
+<div id="farmLocation">farms here</div>
+<div id="houseLocation">house here</div>
+
+
 </body>
 <script type="text/javascript">
 $(document).ready(function() {
@@ -42,7 +54,7 @@ $(document).ready(function() {
 });
 
 var money = {
-	numOf : 0,
+	numOf : 100,
 	update : function (val) {
 		this.numOf += val;
 	}
@@ -52,26 +64,44 @@ var money = {
 var f = [];
 var globalCatArray = 0;
 
-var farm = 	function() {
+var farm = 	function(name) {
+	this.name = name;
 	this.numOf = 0;
 	this.farmLevel = 10;
+	this.buyPrice = 5;
+	this.sellPrice = 6;
 	this.update = function (val) {
 		//numFarms
 		if(val > numFarms)
 		{
 			for(var x=numFarms;x<val;x++)
 			{
-				var tempfarm = new farm();
-				f.push(tempfarm);
-				tempfarm = null;
+				if(checkMoney1.buy(x,this.buyPrice) === true)
+				{
+					var tempfarm = new farm("farm"+x);
+					//tempfarm.name = "farm"+x;
+					f.push(tempfarm);
+					draw.add("farm"+x,"#farmLocation");
+					tempfarm = null;
+				}
+				else
+				{
+					console.log("not enought money to buy!");
+					return false;
+				}
+				numFarms = val;
 			}
-			numFarms = val;
 		}
 		else if(numFarms > val)
 		{
 			for(var x=val;x<numFarms;x++)
 			{
-				f.pop();
+				
+				draw.remove("farm"+x,"#farmLocation", f[x].sellPrice);
+				checkMoney1.sell("farm"+x,f[x].sellPrice);
+				//f.splice(x,1);
+				delete f[x];
+				//f.pop();
 			}
 			
 			numFarms = val;
@@ -94,6 +124,7 @@ var work = 	{
 
 var people = {
 	numOf : 0,
+	happiness: 100,
 	update : function(val) {
 		this.numOf = val;
 		//work.update(val);
@@ -111,14 +142,85 @@ var house = {
 	//1 house = 10 people
 };
 
+function drawOLD(obj, idLocation)
+{
+	for (var i = 0; i < obj.length; i++) 
+	{
+		if($("#" + obj[i].name).length == 0) 
+		{
+			$(idLocation).append("<div id='" + obj[i].name + "' class='farms'>farm.name=" + obj[i].name + "</div>");
+			console.log("added #"+obj[i].name);
+		}
+			//$("#"+obj[i].name).html(i + ",name:" + obj[i].name + "");
+	}
+	for (var t=obj.length; t < 6; t++)
+	{
+		if($("#" + obj[t].name).length == 0) 
+		{
+			$("#" + obj[t].name).remove();
+			console.log("removed #"+obj[t].name);
+		}
+	}
+	return true;
+}
+
+
+var draw = {
+
+	add:function (id,idLocation)
+	{
+			$(idLocation).append("<div id='" + id + "' class='farms'>farm.name=" + id + "</div>");
+			console.log("add " +id + " to " + idLocation);
+			return true;
+		},
+	remove: function (id,idLocation)
+	{
+		//checkMoney1.sell(price);
+		$("#"+id).remove();
+		console.log("remove " +id + " from " + idLocation);
+	}
+};
+
+var checkMoney1 = 
+{
+	buy: function(id,val)
+	{
+	console.log("1.id="+id+",val="+val+", money.numOf="+money.numOf);
+		if(money.numOf - val < 0)
+		{
+			alert("hmm, not enought money!");
+			return false;
+		}
+		else
+		{
+			money.update(val-(val*2));
+		}
+	console.log("2.id="+id+",val="+val+", money.numOf="+money.numOf);
+		return true;
+	},
+	sell: function(val)
+	{
+		money.update(val*1);
+		return true;
+	}
+	
+};
+
+
+
 var f1 = new farm();
 var farm2 = new farm();
 
 var numFarms = 0;
+var tme = 0;
 
 setInterval(function() {
+	$("#timer").html(++tme);
 	house.update($("#house").text());
 	f1.update($("#farm").text());
+	
+	//draw(f, "#farmLocation");
+	//draw(h, "#houseLocation");
 	
 	$("#money").text(money.numOf);
 	$("#work").text(work.numOf);

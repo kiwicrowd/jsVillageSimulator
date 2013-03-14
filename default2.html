@@ -1,0 +1,286 @@
+<html>
+<head>
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+	<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+
+	<style>
+		.farms {background-color:red; padding: 5px; margin: 10px; width: 110px;}
+		
+	</style>
+	
+</head>
+<body>
+<div id="timer">&nbsp;</div>
+<table border="1" style="width: 100%;">
+	<tr><td>Farm</td><td><div id="farm"></div></td><td><div id="farmSlider"></div></td></tr>
+	<tr><td>Work</td><td><div id="work"></div></td><td></td></tr>
+	<tr><td>House</td><td><div id="house"></div></td><td><div id="houseSlider"></div></td></tr>
+	<tr><td>Person</td><td><div id="people"></div></td><td></td></tr>
+	<tr><td>Money</td><td><div id="money"></div></td><td></td></tr>
+</table>
+<div id="display">display</div>
+<div id="farmLocation">farms here</div>
+<div id="houseLocation">house here</div>
+
+
+</body>
+<script type="text/javascript">
+$(document).ready(function() {
+    $( "#houseSlider" ).slider({
+		range: "min",
+		value: 1,
+		min: 0,
+		max: 5,
+		slide: function( event, ui ) {
+			$( "#house" ).text( ui.value );
+		}
+	});
+
+    $( "#farmSlider" ).slider({
+		range: "min",
+		value: 1,
+		min: 0,
+		max: 5,
+		slide: function( event, ui ) {
+			$( "#farm" ).text( ui.value );
+		}
+	});
+
+});
+
+var tme = 0;
+
+var house = function(name){
+	this.name	=	name;
+	this.price	=	100;
+	this.space	=	5;
+};
+
+
+var farm = function(name){
+	this.name	=	name;
+	this.price	=	90;
+	this.jobs	=	6;
+	this.payTheWorkers = function() {
+		for (var pid in p) 
+		{
+			if(p[pid].job == this.name)
+			{
+				p[pid].money += 1;
+				console.log("worker " + p[pid].name + " has been paid");
+			}
+			
+		}
+		console.log("all workers paid from farm"+this.name);
+	};
+};
+
+
+var person = function(name){
+	this.name	=	name;
+	this.live	=	null;
+	this.job	= 	null;
+	this.money	= 	0;
+	this.findaPad	=	function(arr){
+		if(this.live === null)
+		{
+			//console.log("live=null");
+			var m = findAHouse(arr);
+			if(m === false)
+			{
+				console.log("No room for this poor chap("+arr+"), he's homeless!");
+			}
+			else
+			{
+				console.log("horray! we found a house for person-"+arr);
+				this.findaJob(arr);
+			}
+			
+		}
+		else
+		{
+			console.log("this person, "+arr+" lives at house"+this.live);
+		}
+	};
+	this.findaJob	=	function(arr){
+		//alert("get a job");
+		if(this.job === null)
+		{
+			var g = getAJob(arr);
+			
+			if(g === false)
+			{
+				console.log("No jobs available for this poor chap("+arr+"), he's unemployed!");
+			}
+			else
+			{
+				console.log("horray! we found a job for person-"+arr);
+				this.findaJob(arr);
+			}
+		}
+		else
+		{
+			console.log("this person, "+arr+" has a job at farm"+this.job);
+		}
+	};
+		
+};
+
+//CREATE HOUSE, PEOPLE, FARM ARRAYS
+var h = [];
+var p = [];
+var f = [];
+
+//ADD HOUSES, Persons and farms
+for(var x=0; x<2;x++)
+{
+	h.push(new house(x));
+}
+for(var y=0; y<19;y++)
+{
+	p.push(new person(y));
+	//p[y].findaPad(y);
+	//console.log("p["+y+"] created, name=" + p[y].name);
+}
+//console.log("p[5].name="+p[5].name);
+for(var x=0; x<1;x++)
+{
+	f.push(new farm(x));
+}
+
+
+/*
+console.log("h.length="+h.length + "\np.length="+p.length+"\nf.length:"+f.length);
+for (var key in h) {
+  console.log("h:" +key +"-"+h[key].name);
+}
+*/
+//for (var key in p) {
+	//console.log("p:"+key +"-"+p[key].name);
+	//p[key].findaPad(key);
+  
+//}
+/*
+for (var key in f) {
+  //console.log("f:"+key +"-"+f[key].name);
+}
+*/
+function getAJob(arr)
+{
+	//console.log("getAJob arg: " + arr);
+	var taken = 0;
+	
+	//FOR EACH FARM
+	for (var fid in f) 
+	{
+	//console.log("farm: " + f[fid].name);
+		//FOR EACH PERSON
+		for (var pid in p) 
+		{
+			//IF PERSON LIVES IN THIS HOUSE
+			if(p[pid].job == f[fid].name)
+			{
+				taken++;
+			}
+		}
+		//IF HOUSE IN NOT FULL
+		if(f[fid].jobs != 0)
+		{
+		
+			//ADD THIS PERSON INTO THIS HOUSE (THIS PERSON PASSED INTO THIS FUNCTION)
+			p[arr].job = f[fid].name;
+			//console.log("f["+fid+"].space="+f[fid].jobs);
+			f[fid].jobs -= 1;
+			//console.log("h["+hid+"].space="+h[hid].space);
+			return true;
+		}
+		else
+		{
+			console.log("taken !< space: " + taken + " < " + f[fid].jobs);
+		}
+		taken = 0;
+	}
+	//NO ROOM AT THIS INN
+	return false;
+};
+
+
+
+function findAHouse(arr)
+{
+	//console.log("findAhouse arg: " + arr);
+	var taken = 0;
+	
+	//FOR EACH HOUSE
+	for (var hid in h) 
+	{
+	//console.log("house: " + h[hid].name);
+		//FOR EACH PERSON
+		for (var pid in p) 
+		{
+			//IF PERSON LIVES IN THIS HOUSE
+			if(p[pid].live == h[hid].name)
+			{
+				taken++;
+			}
+		}
+		//IF HOUSE IN NOT FULL
+		if(h[hid].space != 0)
+		{
+		
+			//ADD THIS PERSON INTO THIS HOUSE (THIS PERSON PASSED INTO THIS FUNCTION)
+			p[arr].live = h[hid].name;
+			//console.log("h["+hid+"].space="+h[hid].space);
+			h[hid].space -= 1;
+			//console.log("h["+hid+"].space="+h[hid].space);
+			return true;
+		}
+		else
+		{
+			//console.log("taken !< space: " + taken + " < " + h[hid].space);
+		}
+		taken = 0;
+	}
+	//NO ROOM AT THIS INN
+	return false;
+};
+
+
+
+
+//===================================================
+setInterval(function() {
+	$("#timer").html(++tme);
+
+	for (var id in p) {
+	p[id].findaPad(id);
+  //ONCE A PERSON GETS INTO A HOUSE, THEY WILL AUTOMATICALLY TRY AND GET A JOB.
+	}
+
+	var totMoney =0;
+	
+	var houseInfo = "";
+	for (var hid in h) {
+		houseInfo +="house:"+h[hid].name +"<br/>space available:"+h[hid].space+"<br/>";
+	}
+	houseInfo +="======================<br/>";
+	for (var fid in f) {
+		houseInfo +="farm:"+f[fid].name +"<br/>jobs available:"+f[fid].jobs+"<br/>";
+		f[fid].payTheWorkers();
+	
+	
+	}
+	houseInfo +="======================<br/>";
+	for (var pid in p) {
+		totMoney += p[pid].money;
+		houseInfo +="people:"+p[pid].name +" - live:"+p[pid].live+" - job:" + p[pid].job+" - money:"+p[pid].money+"<br/>";
+	}
+	houseInfo +="TOTAL MONEY EARNED: " + totMoney;
+	$("#display").html(houseInfo);
+	
+}, 5000);   
+	    
+</script>
+</html>
